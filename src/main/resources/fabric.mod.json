@@ -3,10 +3,10 @@
   "id": "copy_uuid",
   "version": "${version}",
   "name": "Copy UUID",
-  "description": "Sneak + right-click any entity to copy its UUID to your clipboard.",
+  "description": "Right-click any entity while holding a stick to copy its UUID to your clipboard.",
   "authors": ["Sayuki"],
   "license": "MIT",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": ["com.sayuki.copy_uuid.CopyUUIDMod"],
     "client": ["com.sayuki.copy_uuid.CopyUUIDClient"]

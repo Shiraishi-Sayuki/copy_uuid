@@ -1,28 +1,45 @@
 package com.sayuki.copy_uuid;
 
-import com.sayuki.copy_uuid.network.UUIDPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 
 @Environment(EnvType.CLIENT)
 public class CopyUUIDClient implements ClientModInitializer {
 
+    private boolean wasPressed = false;
+
     @Override
     public void onInitializeClient() {
-        ClientPlayNetworking.registerGlobalReceiver(UUIDPayload.ID, (payload, context) -> {
-            String uuid = payload.entityUuid().toString();
-            String name = payload.entityName();
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null || client.world == null) return;
 
-            context.client().execute(() -> {
-                context.client().keyboard.setClipboard(uuid);
-                context.player().sendMessage(
-                        Text.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid),
-                        true
-                );
-            });
+            ClientPlayerEntity player = client.player;
+            boolean isPressed = client.options.useKey.isPressed();
+
+            if (isPressed && !wasPressed) {
+                if (client.crosshairTarget != null
+                        && client.crosshairTarget.getType() == HitResult.Type.ENTITY) {
+
+                    Entity entity = ((EntityHitResult) client.crosshairTarget).getEntity();
+                    String uuid = entity.getUuidAsString();
+                    String name = entity.getName().getString();
+
+                    client.keyboard.setClipboard(uuid);
+                    player.sendMessage(
+                            Text.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid),
+                            true
+                    );
+                }
+            }
+
+            wasPressed = isPressed;
         });
     }
 }
