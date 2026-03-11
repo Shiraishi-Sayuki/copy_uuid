@@ -4,8 +4,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -24,7 +27,8 @@ public class CopyUUIDClient implements ClientModInitializer {
             boolean isPressed = client.options.useKey.isPressed();
 
             if (isPressed && !wasPressed) {
-                if (client.crosshairTarget != null
+                if (isHoldingStick(client)
+                        && client.crosshairTarget != null
                         && client.crosshairTarget.getType() == HitResult.Type.ENTITY) {
 
                     Entity entity = ((EntityHitResult) client.crosshairTarget).getEntity();
@@ -41,5 +45,15 @@ public class CopyUUIDClient implements ClientModInitializer {
 
             wasPressed = isPressed;
         });
+    }
+
+    private boolean isHoldingStick(MinecraftClient client) {
+        // Compare by registry ID string — works across all versions
+        return isStick(client.player.getMainHandStack().getItem())
+                || isStick(client.player.getOffHandStack().getItem());
+    }
+
+    private boolean isStick(Item item) {
+        return Registries.ITEM.getId(item).toString().equals("minecraft:stick");
     }
 }
