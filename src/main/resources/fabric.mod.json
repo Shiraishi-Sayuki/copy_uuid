@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "copy_uuid",
+  "version": "${version}",
+  "name": "Copy UUID",
+  "description": "Sneak + right-click any entity to copy its UUID to your clipboard.",
+  "authors": ["Sayuki"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.sayuki.copy_uuid.CopyUUIDMod"],
+    "client": ["com.sayuki.copy_uuid.CopyUUIDClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21"
+  }
+}
