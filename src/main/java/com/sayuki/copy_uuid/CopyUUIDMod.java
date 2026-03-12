@@ -16,7 +16,7 @@ public class CopyUUIDMod {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public CopyUUIDMod(IEventBus modEventBus, ModContainer modContainer) {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             CopyUUIDClient.register(modEventBus);
         }
         LOGGER.info("Copy UUID mod initialised.");
