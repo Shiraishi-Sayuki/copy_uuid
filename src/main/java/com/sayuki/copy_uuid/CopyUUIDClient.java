@@ -4,14 +4,13 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 @Environment(EnvType.CLIENT)
 public class CopyUUIDClient implements ClientModInitializer {
@@ -21,24 +20,23 @@ public class CopyUUIDClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.world == null) return;
+            if (client.player == null || client.level == null) return;
 
-            ClientPlayerEntity player = client.player;
-            boolean isPressed = client.options.useKey.isPressed();
+            LocalPlayer player = client.player;
+            boolean isPressed = client.options.keyUse.isDown();
 
             if (isPressed && !wasPressed) {
                 if (isHoldingStick(client)
-                        && client.crosshairTarget != null
-                        && client.crosshairTarget.getType() == HitResult.Type.ENTITY) {
+                        && client.hitResult != null
+                        && client.hitResult.getType() == HitResult.Type.ENTITY) {
 
-                    Entity entity = ((EntityHitResult) client.crosshairTarget).getEntity();
-                    String uuid = entity.getUuidAsString();
+                    Entity entity = ((EntityHitResult) client.hitResult).getEntity();
+                    String uuid = entity.getStringUUID();
                     String name = entity.getName().getString();
 
-                    client.keyboard.setClipboard(uuid);
-                    player.sendMessage(
-                            Text.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid),
-                            true
+                    client.keyboardHandler.setClipboard(uuid);
+                    player.sendOverlayMessage(
+                            Component.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid)
                     );
                 }
             }
@@ -47,13 +45,8 @@ public class CopyUUIDClient implements ClientModInitializer {
         });
     }
 
-    private boolean isHoldingStick(MinecraftClient client) {
-        // Compare by registry ID string — works across all versions
-        return isStick(client.player.getMainHandStack().getItem())
-                || isStick(client.player.getOffHandStack().getItem());
-    }
-
-    private boolean isStick(Item item) {
-        return Registries.ITEM.getId(item).toString().equals("minecraft:stick");
+    private boolean isHoldingStick(Minecraft client) {
+        return client.player.getMainHandItem().is(Items.STICK)
+                || client.player.getOffhandItem().is(Items.STICK);
     }
 }
