@@ -33,9 +33,8 @@ public class CopyUUIDClient {
             String name = entity.getName().getString();
 
             client.keyboardHandler.setClipboard(uuid);
-            client.player.displayClientMessage(
-                    Component.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid),
-                    true
+            client.player.sendOverlayMessage(
+                    Component.literal("§aCopied UUID of §e" + name + "§a: §f" + uuid)
             );
         }
     }
